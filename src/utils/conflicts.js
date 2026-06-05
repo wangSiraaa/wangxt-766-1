@@ -11,20 +11,13 @@ export function checkTeacherConflict(schedule, entry) {
 
 export function checkTrialFullClass(schedule, entry, classrooms, courseTemplates) {
   if (!entry.isTrial) return false;
-  const sameSlotSameRoom = schedule.filter(
-    (s) =>
-      s.classroomId === entry.classroomId &&
-      s.timeslotId === entry.timeslotId &&
-      s.id !== entry.id
+  const sameTimeslot = schedule.filter(
+    (s) => s.timeslotId === entry.timeslotId && s.id !== entry.id
   );
-  if (sameSlotSameRoom.length === 0) return false;
-  const room = classrooms.find((r) => r.id === entry.classroomId);
-  if (!room) return false;
-  const totalStudents = sameSlotSameRoom.reduce((sum, s) => {
-    const tpl = courseTemplates.find((t) => t.id === s.courseId);
-    return sum + (tpl ? tpl.maxStudents : 0);
-  }, 0);
-  return totalStudents >= room.capacity;
+  if (sameTimeslot.length === 0) return false;
+  return sameTimeslot.some((s) => {
+    return s.currentStudents >= s.maxStudents;
+  });
 }
 
 export function canDrop(schedule, entry, classrooms, courseTemplates) {
@@ -34,7 +27,7 @@ export function canDrop(schedule, entry, classrooms, courseTemplates) {
   }
   const trialFull = checkTrialFullClass(schedule, entry, classrooms, courseTemplates);
   if (trialFull) {
-    return { ok: false, reason: 'trial_full', message: '试听课不能排到满班课程' };
+    return { ok: false, reason: 'trial_full', message: '试听课不能排到已有满班课程的时段' };
   }
   return { ok: true };
 }
