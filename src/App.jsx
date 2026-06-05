@@ -27,7 +27,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
+      <header className="app-header" data-testid="app-header">
         <h1 className="app-title">🎨 画室排课画布</h1>
         <RoleSwitcher role={role} onRoleChange={setRole} />
       </header>

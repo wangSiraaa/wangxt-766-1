@@ -40,11 +40,14 @@ if ! npx --yes playwright install --with-deps chromium 2>&1; then
   echo "  ⚠️ Playwright 浏览器安装可能不完整，继续尝试运行测试..."
 fi
 
-echo "[4/4] 运行 Playwright 冲突拖拽测试 ..."
+echo "[4/4] 运行 Playwright 冲突拖拽测试 (baseURL=${BASE_URL}) ..."
+export PLAYWRIGHT_BASE_URL="${BASE_URL}"
+export BASE_URL="${BASE_URL}"
 set +e
 npx playwright test e2e/conflict-drag.spec.js \
   --reporter=list \
   --timeout=60000 \
+  --project=chromium \
   2>&1
 TEST_EXIT=$?
 set -e
