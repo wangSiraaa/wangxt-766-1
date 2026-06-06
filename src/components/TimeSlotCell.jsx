@@ -16,6 +16,7 @@ export default function TimeSlotCell({
   getTeacherColor,
   role,
   conflictCell,
+  isHighlighted,
 }) {
   const [{ isOver, canDropHere }, dropRef] = useDrop({
     accept: ['COURSE', 'SCHEDULED'],
@@ -46,6 +47,7 @@ export default function TimeSlotCell({
   if (isOver && canDropHere) cellClass += ' drop-over';
   if (canDropHere && !entry) cellClass += ' can-drop';
   if (isConflictCell) cellClass += ' conflict-flash';
+  if (isHighlighted) cellClass += ' jump-highlight';
 
   return (
     <div

@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { TEACHERS, CLASSROOMS, TIMESLOTS, COURSE_TEMPLATES, ROLES } from '../data/constants';
 import { canDrop, createScheduleEntry } from '../utils/conflicts';
 import { loadState, saveState } from '../utils/storage';
+import seed766 from '../data/seed-766.json';
 
 const DRAG_TYPES = { COURSE: 'COURSE', SCHEDULED: 'SCHEDULED' };
 
@@ -9,7 +10,7 @@ function buildInitialState() {
   const saved = loadState();
   if (saved && saved.schedule && saved.role) return saved;
   return {
-    schedule: [],
+    schedule: seed766.initialSchedule.map((s) => ({ ...s })),
     role: ROLES.ADMIN,
     courseTemplates: COURSE_TEMPLATES.map((c) => ({ ...c })),
   };
@@ -19,6 +20,8 @@ export function useScheduler() {
   const [state, setState] = useState(buildInitialState);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [conflictAlert, setConflictAlert] = useState(null);
+  const [jumpTarget, setJumpTarget] = useState(null);
+  const [highlightTarget, setHighlightTarget] = useState(null);
   const bounceTimers = useRef({});
 
   useEffect(() => {
@@ -126,6 +129,33 @@ export function useScheduler() {
     return t ? t.color : '#6b7280';
   }, []);
 
+  const jumpTo = useCallback((classroomId, timeslotId) => {
+    setJumpTarget({ classroomId, timeslotId });
+    setHighlightTarget({ classroomId, timeslotId });
+    setTimeout(() => {
+      setHighlightTarget(null);
+    }, 3000);
+    setTimeout(() => {
+      setJumpTarget(null);
+    }, 100);
+  }, []);
+
+  const jumpToEntry = useCallback((entryId) => {
+    const entry = schedule.find((s) => s.id === entryId);
+    if (entry) {
+      jumpTo(entry.classroomId, entry.timeslotId);
+      setSelectedEntry(entry);
+    }
+  }, [schedule, jumpTo]);
+
+  const clearJumpTarget = useCallback(() => {
+    setJumpTarget(null);
+  }, []);
+
+  const getSeedBusinessCode = useCallback(() => {
+    return seed766.businessCode;
+  }, []);
+
   return {
     schedule,
     role,
@@ -144,5 +174,11 @@ export function useScheduler() {
     getTeacherColor,
     courseTemplates,
     DRAG_TYPES,
+    jumpTarget,
+    highlightTarget,
+    jumpTo,
+    jumpToEntry,
+    clearJumpTarget,
+    getSeedBusinessCode,
   };
 }

@@ -3,6 +3,7 @@ import CoursePalette from './components/CoursePalette';
 import DetailPanel from './components/DetailPanel';
 import ConflictAlert from './components/ConflictAlert';
 import RoleSwitcher from './components/RoleSwitcher';
+import JumpNavigator from './components/JumpNavigator';
 import { useScheduler } from './hooks/useScheduler';
 import { ROLES } from './data/constants';
 
@@ -23,6 +24,11 @@ export default function App() {
     getTeacherName,
     getTeacherColor,
     courseTemplates,
+    jumpTarget,
+    highlightTarget,
+    jumpTo,
+    jumpToEntry,
+    clearJumpTarget,
   } = useScheduler();
 
   return (
@@ -35,13 +41,22 @@ export default function App() {
       <ConflictAlert alert={conflictAlert} onDismiss={dismissConflict} />
 
       <div className="app-body">
-        <CoursePalette
-          courseTemplates={courseTemplates}
-          getTeacherName={getTeacherName}
-          getTeacherColor={getTeacherColor}
-          role={role}
-          onToggleMaterial={toggleTemplateMaterial}
-        />
+        <div className="left-sidebar">
+          <JumpNavigator
+            schedule={schedule}
+            onJumpTo={jumpTo}
+            onJumpToEntry={jumpToEntry}
+            getTeacherName={getTeacherName}
+            getTeacherColor={getTeacherColor}
+          />
+          <CoursePalette
+            courseTemplates={courseTemplates}
+            getTeacherName={getTeacherName}
+            getTeacherColor={getTeacherColor}
+            role={role}
+            onToggleMaterial={toggleTemplateMaterial}
+          />
+        </div>
 
         <ScheduleCanvas
           schedule={schedule}
@@ -55,6 +70,9 @@ export default function App() {
           getTeacherColor={getTeacherColor}
           role={role}
           conflictAlert={conflictAlert}
+          jumpTarget={jumpTarget}
+          highlightTarget={highlightTarget}
+          onClearJumpTarget={clearJumpTarget}
         />
 
         <DetailPanel
